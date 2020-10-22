@@ -1,0 +1,14 @@
+58a3d51b64269b6955e37ba9ef6e05bf *DESCRIPTION
+87ebb1c0aa4895a683991f3a195b5e20 *NAMESPACE
+50b9cd229c9508f401b3985b9966879e *NEWS.md
+e53063b985dd6a5c3eb73208a18adec5 *R/gaussplot_sample_data.R
+b169b53b05835929d8471f21706461bd *R/ggplot_gaussian_2D.R
+6a2f80153ebbdf89ef38ffd6a5d895de *R/globals.R
+795796383ac07854a62e91999190ffce *R/predict_gaussian_2D.R
+fc09c053326ba90f3a32bc4cfedd43ba *README.md
+78dc823d9cc1a17eb07ada255e7d02af *data/gaussplot_sample_data.rda
+a1720d1ae1d4013546f7446aff3fadb8 *man/figures/README-example-1.png
+cd9ad7261749836d8cf917288d920c0a *man/figures/README-example-2.png
+ba4da91d7a46544f02a6dc68d39be54f *man/gaussplot_sample_data.Rd
+cce3926f8d60452be2295bdd00cdb145 *man/ggplot_gaussian_2D.Rd
+eafcf4100b57a3d8ae22630a4c465455 *man/predict_gaussian_2D.Rd
