@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Vikram B. Baliga" />
+
+<meta name="date" content="2021-01-10" />
+
+<title>Troubleshooting model fits</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Troubleshooting model fits</h1>
+<h4 class="author">Vikram B. Baliga</h4>
+<h4 class="date">2021-01-10</h4>
+
+
+
+<p>Automatically finding good initial values for parameters in a nonlinear model (i.e. <code>stats::nls()</code>) is an art. Given that each of the formulas represented by the <code>model</code> argument of <code>fit_gaussian_2D()</code> contains 5 to 7 parameters, <code>stats::nls()</code> will often encounter singular gradients or step size errors.</p>
+<p>Code within <code>fit_gaussian_2D()</code> will first scan the supplied dataset to guesstimate sensible initial parameters, which hopefully sidesteps these issues. But there is no guarantee this strategy will always work.</p>
+<p>This vignette will offer some guidance on what to do when <code>stats::nls()</code> fails to converge, including the use of optional parameters in <code>fit_gaussian_2D()</code> that are meant to help you address these issues.</p>
+<p>Let’s start by loading <code>gaussplotR</code> and getting some sample data loaded up:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">library</span>(gaussplotR)</a>
+<a class="sourceLine" id="cb1-2" title="2"></a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="co">## Load the sample data set</span></a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="kw">data</span>(gaussplot_sample_data)</a>
+<a class="sourceLine" id="cb1-5" title="5"></a>
+<a class="sourceLine" id="cb1-6" title="6"><span class="co">## The raw data we&#39;d like to use are in columns 1:3</span></a>
+<a class="sourceLine" id="cb1-7" title="7">samp_dat &lt;-</a>
+<a class="sourceLine" id="cb1-8" title="8"><span class="st">  </span>gaussplot_sample_data[,<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>]</a></code></pre></div>
+<div id="singular-gradients" class="section level2">
+<h2>Singular gradients</h2>
+<p>One common problem is that of singular gradients. I will intentionally comment out the next block of code because running it will produce the singular gradient error, and generating errors in an R Markdown file will prevent its rendering. Please un-comment the example below to see.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"><span class="co">## Un-comment this example if you&#39;d like to see a singular gradient error</span></a>
+<a class="sourceLine" id="cb2-2" title="2"><span class="co"># gauss_fit_cir &lt;-</span></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="co">#   fit_gaussian_2D(samp_dat,</span></a>
+<a class="sourceLine" id="cb2-4" title="4"><span class="co">#                   constrain_amplitude = TRUE,</span></a>
+<a class="sourceLine" id="cb2-5" title="5"><span class="co">#                   method = &quot;circular&quot;)</span></a></code></pre></div>
+<p>The output from the above example should be:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="co">#&gt; Error in stats::nls(response ~ Amp_init * exp(-((((X_values - X_peak)^2)/(2 *  : </span></a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="co">#&gt;   singular gradient</span></a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="co">#&gt; Called from: stats::nls(response ~ Amp_init * exp(-((((X_values - X_peak)^2)/(2 * </span></a>
+<a class="sourceLine" id="cb3-4" title="4"><span class="co">#&gt;     X_sig^2) + ((Y_values - Y_peak)^2)/(2 * Y_sig^2)))), start = c(X_peak = #&gt; _peak_init, &gt;</span></a>
+<a class="sourceLine" id="cb3-5" title="5"><span class="co">#&gt;     Y_peak = Y_peak_init, X_sig = X_sig_init, Y_sig = Y_sig_init), </span></a>
+<a class="sourceLine" id="cb3-6" title="6"><span class="co">#&gt;     data = data, trace = verbose, control = list(maxiter = maxiter, </span></a>
+<a class="sourceLine" id="cb3-7" title="7"><span class="co">#&gt;         ...))</span></a>
+<a class="sourceLine" id="cb3-8" title="8"><span class="co">#&gt; Error during wrapup: unimplemented type (29) in &#39;eval&#39;</span></a>
+<a class="sourceLine" id="cb3-9" title="9"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb3-10" title="10"><span class="co">#&gt; Error: no more error handlers available (recursive errors?); invoking &#39;abort&#39; restart</span></a>
+<a class="sourceLine" id="cb3-11" title="11"><span class="co">#&gt; Error during wrapup: INTEGER() can only be applied to a &#39;integer&#39;, not a &#39;unknown type #&gt; #29&#39;</span></a>
+<a class="sourceLine" id="cb3-12" title="12"><span class="co">#&gt; Error: no more error handlers available (recursive errors?); invoking &#39;abort&#39; restart</span></a></code></pre></div>
+<p>There are a couple tools in <code>gaussplotR</code> that can help you address this problem.</p>
+<p>A good first step is to enable the optional argument <code>print_initial_params</code> in <code>fit_gaussian_2D()</code> by setting it to <code>TRUE</code>. Again, please un-comment this next block, since it will still produce an error:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1"><span class="co">## Un-comment this example if you&#39;d like to see a singular gradient error</span></a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="co"># gauss_fit_cir &lt;-</span></a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="co">#   fit_gaussian_2D(samp_dat,</span></a>
+<a class="sourceLine" id="cb4-4" title="4"><span class="co">#                   constrain_amplitude = TRUE,</span></a>
+<a class="sourceLine" id="cb4-5" title="5"><span class="co">#                   method = &quot;circular&quot;,</span></a>
+<a class="sourceLine" id="cb4-6" title="6"><span class="co">#                   print_initial_params = TRUE)</span></a></code></pre></div>
+<p>Though this block of code will not work, you will at least see something helpful at the beginning of the error message:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1"><span class="co">#&gt; Initial parameters:</span></a>
+<a class="sourceLine" id="cb5-2" title="2"><span class="co">#&gt;       Amp    X_peak    Y_peak     X_sig     Y_sig </span></a>
+<a class="sourceLine" id="cb5-3" title="3"><span class="co">#&gt; 25.725293 -2.000000  3.000000  2.482892  2.500000 </span></a>
+<a class="sourceLine" id="cb5-4" title="4"><span class="co">#&gt; Error in stats::nls(response ~ Amp_init * exp(-((((X_values - X_peak)^2)/(2 *  : </span></a>
+<a class="sourceLine" id="cb5-5" title="5"><span class="co">#&gt;   singular gradient</span></a>
+<a class="sourceLine" id="cb5-6" title="6"><span class="co">#&gt; Called from: stats::nls(response ~ Amp_init * exp(-((((X_values - X_peak)^2)/(2 * </span></a>
+<a class="sourceLine" id="cb5-7" title="7"><span class="co">#&gt;     X_sig^2) + ((Y_values - Y_peak)^2)/(2 * Y_sig^2)))), start = c(X_peak = #&gt; _peak_init, &gt;</span></a>
+<a class="sourceLine" id="cb5-8" title="8"><span class="co">#&gt;     Y_peak = Y_peak_init, X_sig = X_sig_init, Y_sig = Y_sig_init), </span></a>
+<a class="sourceLine" id="cb5-9" title="9"><span class="co">#&gt;     data = data, trace = verbose, control = list(maxiter = maxiter, </span></a>
+<a class="sourceLine" id="cb5-10" title="10"><span class="co">#&gt;         ...))</span></a>
+<a class="sourceLine" id="cb5-11" title="11"><span class="co">#&gt; Error during wrapup: unimplemented type (29) in &#39;eval&#39;</span></a>
+<a class="sourceLine" id="cb5-12" title="12"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb5-13" title="13"><span class="co">#&gt; Error: no more error handlers available (recursive errors?); invoking &#39;abort&#39; restart</span></a>
+<a class="sourceLine" id="cb5-14" title="14"><span class="co">#&gt; Error during wrapup: INTEGER() can only be applied to a &#39;integer&#39;, not a &#39;unknown type #&gt; #29&#39;</span></a>
+<a class="sourceLine" id="cb5-15" title="15"><span class="co">#&gt; Error: no more error handlers available (recursive errors?); invoking &#39;abort&#39; restart</span></a></code></pre></div>
+<p>Those first three lines indicate the initial values that were used. Often, singular gradients will arise when initial values for parameters were poorly chosen (sorry!).</p>
+<p>What you can do is supply your own set of initial values. To do this, use the optional argument <code>user_init</code> within <code>fit_gaussian_2D()</code>. You will need to supply a numeric vector that is of the same length as the number of parameters for your chosen model. The values you supply must be provided in the same order they appear in the Initial parameters message. They do not need to be named; values alone will suffice.</p>
+<p>This next example will work. I’ll keep <code>print_initial_params</code> on too, since it can be nice to see:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1"><span class="co">## This should run with no errors</span></a>
+<a class="sourceLine" id="cb6-2" title="2">gauss_fit_cir_user &lt;-</a>
+<a class="sourceLine" id="cb6-3" title="3"><span class="st">  </span><span class="kw">fit_gaussian_2D</span>(samp_dat,</a>
+<a class="sourceLine" id="cb6-4" title="4">                  <span class="dt">constrain_amplitude =</span> <span class="ot">TRUE</span>,</a>
+<a class="sourceLine" id="cb6-5" title="5">                  <span class="dt">method =</span> <span class="st">&quot;circular&quot;</span>,</a>
+<a class="sourceLine" id="cb6-6" title="6">                  <span class="dt">user_init =</span> <span class="kw">c</span>(<span class="fl">25.72529</span>, <span class="fl">-2.5</span>, <span class="fl">1.7</span>, <span class="fl">1.3</span>, <span class="fl">1.6</span>),</a>
+<a class="sourceLine" id="cb6-7" title="7">                  <span class="dt">print_initial_params =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb6-8" title="8"><span class="co">#&gt; Initial parameters:</span></a>
+<a class="sourceLine" id="cb6-9" title="9"><span class="co">#&gt;      Amp   X_peak   Y_peak    X_sig    Y_sig </span></a>
+<a class="sourceLine" id="cb6-10" title="10"><span class="co">#&gt; 25.72529 -2.50000  1.70000  1.30000  1.60000</span></a>
+<a class="sourceLine" id="cb6-11" title="11">gauss_fit_cir_user</a>
+<a class="sourceLine" id="cb6-12" title="12"><span class="co">#&gt; $coefs</span></a>
+<a class="sourceLine" id="cb6-13" title="13"><span class="co">#&gt;        Amp    X_peak   Y_peak    X_sig    Y_sig</span></a>
+<a class="sourceLine" id="cb6-14" title="14"><span class="co">#&gt; 1 25.72529 -2.549886 1.858539 1.268501 1.496817</span></a>
+<a class="sourceLine" id="cb6-15" title="15"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb6-16" title="16"><span class="co">#&gt; $model</span></a>
+<a class="sourceLine" id="cb6-17" title="17"><span class="co">#&gt; Nonlinear regression model</span></a>
+<a class="sourceLine" id="cb6-18" title="18"><span class="co">#&gt;   model: response ~ Amp_init * exp(-((((X_values - X_peak)^2)/(2 * X_sig^2) +     ((Y_values - Y_peak)^2)/(2 * Y_sig^2))))</span></a>
+<a class="sourceLine" id="cb6-19" title="19"><span class="co">#&gt;    data: data</span></a>
+<a class="sourceLine" id="cb6-20" title="20"><span class="co">#&gt; X_peak Y_peak  X_sig  Y_sig </span></a>
+<a class="sourceLine" id="cb6-21" title="21"><span class="co">#&gt; -2.550  1.859  1.269  1.497 </span></a>
+<a class="sourceLine" id="cb6-22" title="22"><span class="co">#&gt;  residual sum-of-squares: 906.9</span></a>
+<a class="sourceLine" id="cb6-23" title="23"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb6-24" title="24"><span class="co">#&gt; Number of iterations to convergence: 20 </span></a>
+<a class="sourceLine" id="cb6-25" title="25"><span class="co">#&gt; Achieved convergence tolerance: 8.046e-06</span></a>
+<a class="sourceLine" id="cb6-26" title="26"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb6-27" title="27"><span class="co">#&gt; $model_error_stats</span></a>
+<a class="sourceLine" id="cb6-28" title="28"><span class="co">#&gt;        rss    rmse deviance      AIC</span></a>
+<a class="sourceLine" id="cb6-29" title="29"><span class="co">#&gt; 1 906.8782 5.01907 906.8782 228.3172</span></a>
+<a class="sourceLine" id="cb6-30" title="30"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb6-31" title="31"><span class="co">#&gt; $fit_method</span></a>
+<a class="sourceLine" id="cb6-32" title="32"><span class="co">#&gt;        method     amplitude   orientation </span></a>
+<a class="sourceLine" id="cb6-33" title="33"><span class="co">#&gt;    &quot;circular&quot; &quot;constrained&quot;            NA </span></a>
+<a class="sourceLine" id="cb6-34" title="34"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb6-35" title="35"><span class="co">#&gt; attr(,&quot;gaussplotR&quot;)</span></a>
+<a class="sourceLine" id="cb6-36" title="36"><span class="co">#&gt; [1] &quot;gaussplotR_fit&quot;</span></a></code></pre></div>
+<p>Note that although we are constraining the amplitude, the value of <code>Amp</code> must still be provided (here it is <code>25.72529</code>).</p>
+<p>It may take some trial and error to find a set of <code>user_init</code> values that gets your model to converge. It often makes sense to think about what values are feasible for each parameter. For example, it should be relatively straightfoward to think of ranges of possible values for <code>X_peak</code> and <code>Y_peak</code>. I often find that finding good initial values for the “spread” parameters (such as <code>X_sig</code> and <code>Y_sig</code>) is the tough nut to crack, so I recommend tweaking those parameters first.</p>
+</div>
+<div id="additional-control-arguments-to-nls" class="section level2">
+<h2>Additional control arguments to <code>nls()</code></h2>
+<p>The <code>fit_gaussian_2D()</code> function also allows you to pass additional control arguments to <code>stats::nls.control()</code> via the <code>...</code> argument.</p>
+<p>To put this in more technical terms, arguments supplied to <code>...</code> are handled as:<br />
+<code>stats::nls(control = list(maxiter, ...))</code></p>
+<p>Therefore, if you are interested in changing e.g. <code>minFactor</code> to <code>1/2048</code>:<br />
+<code>fit_gaussian_2D(data, model, minFactor = 1/2048)</code></p>
+<p>See the Help file for <code>stats::nls.control()</code> for further guidance on what these control arguments are.</p>
+<p>Please also note that that tweaking <code>maxiter</code> should not be handled via <code>...</code> but rather by the <code>maxiter</code> argument to <code>fit_gaussian_2D()</code>.</p>
+</div>
+<div id="use-parameter-constraints-with-caution" class="section level2">
+<h2>Use parameter constraints with caution</h2>
+<p>Our scapegoat here is setting <code>constrain_amplitude = TRUE</code>. Often, when constraining parameters in a nonlinear model, you’ll find yourself in a scenario where the QR decomposition of the gradient matrix is not of full column rank.</p>
+<p>Constraining parameters (amplitude or orientation) will lead to poorer-fitting Gaussians anyway, so these features should only be used if you have an <em>a priori</em> reason to do so (see examples in Priebe et al. 2003<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>)</p>
+<p>Turning off the <code>constrain_amplitude</code> constraint alleviates the problem in this particular case:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1"><span class="co">## This should run with no errors</span></a>
+<a class="sourceLine" id="cb7-2" title="2">gauss_fit_cir &lt;-</a>
+<a class="sourceLine" id="cb7-3" title="3"><span class="st">  </span><span class="kw">fit_gaussian_2D</span>(samp_dat,</a>
+<a class="sourceLine" id="cb7-4" title="4">                  <span class="dt">method =</span> <span class="st">&quot;circular&quot;</span>)</a>
+<a class="sourceLine" id="cb7-5" title="5">gauss_fit_cir</a>
+<a class="sourceLine" id="cb7-6" title="6"><span class="co">#&gt; $coefs</span></a>
+<a class="sourceLine" id="cb7-7" title="7"><span class="co">#&gt;        Amp    X_peak   Y_peak    X_sig    Y_sig</span></a>
+<a class="sourceLine" id="cb7-8" title="8"><span class="co">#&gt; 1 23.18005 -2.546643 1.811152 1.316288 1.642641</span></a>
+<a class="sourceLine" id="cb7-9" title="9"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb7-10" title="10"><span class="co">#&gt; $model</span></a>
+<a class="sourceLine" id="cb7-11" title="11"><span class="co">#&gt; Nonlinear regression model</span></a>
+<a class="sourceLine" id="cb7-12" title="12"><span class="co">#&gt;   model: response ~ Amp * exp(-((((X_values - X_peak)^2)/(2 * X_sig^2) +     ((Y_values - Y_peak)^2)/(2 * Y_sig^2))))</span></a>
+<a class="sourceLine" id="cb7-13" title="13"><span class="co">#&gt;    data: data</span></a>
+<a class="sourceLine" id="cb7-14" title="14"><span class="co">#&gt;    Amp X_peak Y_peak  X_sig  Y_sig </span></a>
+<a class="sourceLine" id="cb7-15" title="15"><span class="co">#&gt; 23.180 -2.547  1.811  1.316  1.643 </span></a>
+<a class="sourceLine" id="cb7-16" title="16"><span class="co">#&gt;  residual sum-of-squares: 899.6</span></a>
+<a class="sourceLine" id="cb7-17" title="17"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb7-18" title="18"><span class="co">#&gt; Number of iterations to convergence: 22 </span></a>
+<a class="sourceLine" id="cb7-19" title="19"><span class="co">#&gt; Achieved convergence tolerance: 9.057e-06</span></a>
+<a class="sourceLine" id="cb7-20" title="20"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb7-21" title="21"><span class="co">#&gt; $model_error_stats</span></a>
+<a class="sourceLine" id="cb7-22" title="22"><span class="co">#&gt;       rss     rmse deviance      AIC</span></a>
+<a class="sourceLine" id="cb7-23" title="23"><span class="co">#&gt; 1 899.613 4.998925  899.613 230.0276</span></a>
+<a class="sourceLine" id="cb7-24" title="24"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb7-25" title="25"><span class="co">#&gt; $fit_method</span></a>
+<a class="sourceLine" id="cb7-26" title="26"><span class="co">#&gt;          method       amplitude     orientation </span></a>
+<a class="sourceLine" id="cb7-27" title="27"><span class="co">#&gt;      &quot;circular&quot; &quot;unconstrained&quot;              NA </span></a>
+<a class="sourceLine" id="cb7-28" title="28"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb7-29" title="29"><span class="co">#&gt; attr(,&quot;gaussplotR&quot;)</span></a>
+<a class="sourceLine" id="cb7-30" title="30"><span class="co">#&gt; [1] &quot;gaussplotR_fit&quot;</span></a></code></pre></div>
+<p>Hope this helps!</p>
+<p>🐢</p>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>Priebe NJ, Cassanello CR, Lisberger SG. The neural representation of speed in macaque area MT/V5. J Neurosci. 2003 Jul 2;23(13):5650-61. doi: 10.1523/JNEUROSCI.23-13-05650.2003.<a href="#fnref1" class="footnote-back">↩</a></p></li>
+</ol>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
