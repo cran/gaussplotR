@@ -2,7 +2,7 @@
 % Please edit documentation in R/predict_gaussian_2D.R
 \name{predict_gaussian_2D}
 \alias{predict_gaussian_2D}
-\title{Predict values from a fitted 2D gaussian}
+\title{Predict values from a fitted 2D-Gaussian}
 \usage{
 predict_gaussian_2D(fit_object, X_values, Y_values, ...)
 }
@@ -18,11 +18,11 @@ or a list that contains coefficients and fit methods (see Details).}
 }
 \value{
 A data.frame with the supplied \code{X_values} and \code{Y_values}
-along with the predicted values of the 2D gaussian
+along with the predicted values of the 2D-Gaussian
 (\code{predicted_values})
 }
 \description{
-Predict values from a fitted 2D gaussian
+Predict values from a fitted 2D-Gaussian
 }
 \details{
 This function assumes Gaussian parameters have been fitted beforehand. No
@@ -31,8 +31,8 @@ supplied via the object created by \code{gaussplotR::fit_gaussian_2D()}.
 
 If \code{fit_object} is not an object created by
 \code{gaussplotR::fit_gaussian_2D()}, \code{predict_gaussian_2D()} attempts
-to parse \code{fit_object} as a list of two items. The coefficients of the fit
-must be supplied as a one-row, named data.frame within
+to parse \code{fit_object} as a list of two items. The coefficients of the
+fit must be supplied as a one-row, named data.frame within
 \code{fit_object$coefs}, and details of the methods for fitting the Gaussian
 must be contained as a character vector in \code{fit_object$fit_method}. This
 character vector in \code{fit_object$fit_method} must be a named vector that

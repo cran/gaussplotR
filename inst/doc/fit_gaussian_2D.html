@@ -12,34 +12,53 @@
 
 <meta name="author" content="Vikram B. Baliga" />
 
-<meta name="date" content="2021-01-10" />
+<meta name="date" content="2021-05-02" />
 
-<title>Fitting 2D Gaussians to Data</title>
+<title>Fitting 2D-Gaussians to Data</title>
+
+<script src="data:application/javascript;base64,Ly8gUGFuZG9jIDIuOSBhZGRzIGF0dHJpYnV0ZXMgb24gYm90aCBoZWFkZXIgYW5kIGRpdi4gV2UgcmVtb3ZlIHRoZSBmb3JtZXIgKHRvCi8vIGJlIGNvbXBhdGlibGUgd2l0aCB0aGUgYmVoYXZpb3Igb2YgUGFuZG9jIDwgMi44KS4KZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcignRE9NQ29udGVudExvYWRlZCcsIGZ1bmN0aW9uKGUpIHsKICB2YXIgaHMgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKCJkaXYuc2VjdGlvbltjbGFzcyo9J2xldmVsJ10gPiA6Zmlyc3QtY2hpbGQiKTsKICB2YXIgaSwgaCwgYTsKICBmb3IgKGkgPSAwOyBpIDwgaHMubGVuZ3RoOyBpKyspIHsKICAgIGggPSBoc1tpXTsKICAgIGlmICghL15oWzEtNl0kL2kudGVzdChoLnRhZ05hbWUpKSBjb250aW51ZTsgIC8vIGl0IHNob3VsZCBiZSBhIGhlYWRlciBoMS1oNgogICAgYSA9IGguYXR0cmlidXRlczsKICAgIHdoaWxlIChhLmxlbmd0aCA+IDApIGgucmVtb3ZlQXR0cmlidXRlKGFbMF0ubmFtZSk7CiAgfQp9KTsK"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
 
 
-
-<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
 <style type="text/css" data-origin="pandoc">
-a.sourceLine { display: inline-block; line-height: 1.25; }
-a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-code.sourceCode { white-space: pre-wrap; }
-a.sourceLine { text-indent: -1em; padding-left: 1em; }
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
-pre.numberSource a.sourceLine
-  { position: relative; left: -4em; }
-pre.numberSource a.sourceLine::before
-  { content: attr(title);
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
     position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all; display: inline-block;
+    border: none; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -48,9 +67,9 @@ pre.numberSource a.sourceLine::before
   }
 pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
 div.sourceCode
-  {  }
+  {   }
 @media screen {
-a.sourceLine::before { text-decoration: underline; }
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
@@ -107,187 +126,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 
 
-<style type="text/css">body {
-background-color: #fff;
-margin: 1em auto;
-max-width: 700px;
-overflow: visible;
-padding-left: 2em;
-padding-right: 2em;
-font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-font-size: 14px;
-line-height: 1.35;
-}
-#TOC {
-clear: both;
-margin: 0 0 10px 10px;
-padding: 4px;
-width: 400px;
-border: 1px solid #CCCCCC;
-border-radius: 5px;
-background-color: #f6f6f6;
-font-size: 13px;
-line-height: 1.3;
-}
-#TOC .toctitle {
-font-weight: bold;
-font-size: 15px;
-margin-left: 5px;
-}
-#TOC ul {
-padding-left: 40px;
-margin-left: -1.5em;
-margin-top: 5px;
-margin-bottom: 5px;
-}
-#TOC ul ul {
-margin-left: -2em;
-}
-#TOC li {
-line-height: 16px;
-}
-table {
-margin: 1em auto;
-border-width: 1px;
-border-color: #DDDDDD;
-border-style: outset;
-border-collapse: collapse;
-}
-table th {
-border-width: 2px;
-padding: 5px;
-border-style: inset;
-}
-table td {
-border-width: 1px;
-border-style: inset;
-line-height: 18px;
-padding: 5px 5px;
-}
-table, table th, table td {
-border-left-style: none;
-border-right-style: none;
-}
-table thead, table tr.even {
-background-color: #f7f7f7;
-}
-p {
-margin: 0.5em 0;
-}
-blockquote {
-background-color: #f6f6f6;
-padding: 0.25em 0.75em;
-}
-hr {
-border-style: solid;
-border: none;
-border-top: 1px solid #777;
-margin: 28px 0;
-}
-dl {
-margin-left: 0;
-}
-dl dd {
-margin-bottom: 13px;
-margin-left: 13px;
-}
-dl dt {
-font-weight: bold;
-}
-ul {
-margin-top: 0;
-}
-ul li {
-list-style: circle outside;
-}
-ul ul {
-margin-bottom: 0;
-}
-pre, code {
-background-color: #f7f7f7;
-border-radius: 3px;
-color: #333;
-white-space: pre-wrap; 
-}
-pre {
-border-radius: 3px;
-margin: 5px 0px 10px 0px;
-padding: 10px;
-}
-pre:not([class]) {
-background-color: #f7f7f7;
-}
-code {
-font-family: Consolas, Monaco, 'Courier New', monospace;
-font-size: 85%;
-}
-p > code, li > code {
-padding: 2px 0px;
-}
-div.figure {
-text-align: center;
-}
-img {
-background-color: #FFFFFF;
-padding: 2px;
-border: 1px solid #DDDDDD;
-border-radius: 3px;
-border: 1px solid #CCCCCC;
-margin: 0 5px;
-}
-h1 {
-margin-top: 0;
-font-size: 35px;
-line-height: 40px;
-}
-h2 {
-border-bottom: 4px solid #f7f7f7;
-padding-top: 10px;
-padding-bottom: 2px;
-font-size: 145%;
-}
-h3 {
-border-bottom: 2px solid #f7f7f7;
-padding-top: 10px;
-font-size: 120%;
-}
-h4 {
-border-bottom: 1px solid #f7f7f7;
-margin-left: 8px;
-font-size: 105%;
-}
-h5, h6 {
-border-bottom: 1px solid #ccc;
-font-size: 105%;
-}
-a {
-color: #0033dd;
-text-decoration: none;
-}
-a:hover {
-color: #6666ff; }
-a:visited {
-color: #800080; }
-a:visited:hover {
-color: #BB00BB; }
-a[href^="http:"] {
-text-decoration: underline; }
-a[href^="https:"] {
-text-decoration: underline; }
 
-code > span.kw { color: #555; font-weight: bold; } 
-code > span.dt { color: #902000; } 
-code > span.dv { color: #40a070; } 
-code > span.bn { color: #d14; } 
-code > span.fl { color: #d14; } 
-code > span.ch { color: #d14; } 
-code > span.st { color: #d14; } 
-code > span.co { color: #888888; font-style: italic; } 
-code > span.ot { color: #007020; } 
-code > span.al { color: #ff0000; font-weight: bold; } 
-code > span.fu { color: #900; font-weight: bold; } 
-code > span.er { color: #a61717; background-color: #e3d2d2; } 
-</style>
+<link rel="stylesheet" href="data:text/css,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" type="text/css" />
 
 
 
@@ -299,38 +139,40 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<h1 class="title toc-ignore">Fitting 2D Gaussians to Data</h1>
+<h1 class="title toc-ignore">Fitting 2D-Gaussians to Data</h1>
 <h4 class="author">Vikram B. Baliga</h4>
-<h4 class="date">2021-01-10</h4>
+<h4 class="date">2021-05-02</h4>
 
 
 
 <div id="overview" class="section level2">
 <h2>Overview</h2>
-<p>The function <code>fit_gaussian_2D()</code> can be used fit 2D Gaussians to data, and has several methods for how the fitting is implemented. This vignette will run you through what these methods mean with worked examples.</p>
+<p>The function <code>fit_gaussian_2D()</code> can be used fit 2D-Gaussians to data, and has several methods for how the fitting is implemented. This vignette will run you through what these methods mean with worked examples.</p>
 <p>We’ll begin by loading <code>gaussplotR</code> and loading the sample data set provided within. The raw data we’d like to use are in columns 1:3, so we’ll shave the data set down to those columns before running through the examples.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">library</span>(gaussplotR)</a>
-<a class="sourceLine" id="cb1-2" title="2"></a>
-<a class="sourceLine" id="cb1-3" title="3"><span class="co">## We&#39;ll also use lattice, ggplot2 and metR</span></a>
-<a class="sourceLine" id="cb1-4" title="4"><span class="kw">library</span>(lattice); <span class="kw">library</span>(ggplot2); <span class="kw">library</span>(metR)</a>
-<a class="sourceLine" id="cb1-5" title="5"></a>
-<a class="sourceLine" id="cb1-6" title="6"><span class="co">## Load the sample data set</span></a>
-<a class="sourceLine" id="cb1-7" title="7"><span class="kw">data</span>(gaussplot_sample_data)</a>
-<a class="sourceLine" id="cb1-8" title="8"></a>
-<a class="sourceLine" id="cb1-9" title="9"><span class="co">## The raw data we&#39;d like to use are in columns 1:3</span></a>
-<a class="sourceLine" id="cb1-10" title="10">samp_dat &lt;-</a>
-<a class="sourceLine" id="cb1-11" title="11"><span class="st">  </span>gaussplot_sample_data[,<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>]</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gaussplotR)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">## We&#39;ll also use lattice, ggplot2 and metR</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lattice); <span class="fu">library</span>(ggplot2); <span class="fu">library</span>(metR)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning: package &#39;ggplot2&#39; was built under R version 4.0.5</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning: package &#39;metR&#39; was built under R version 4.0.5</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">## Load the sample data set</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(gaussplot_sample_data)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="do">## The raw data we&#39;d like to use are in columns 1:3</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>samp_dat <span class="ot">&lt;-</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  gaussplot_sample_data[,<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>]</span></code></pre></div>
 <p>It generally helps to plot the data beforehand to get a sense of its overall shape. We’ll simply produce a contour plot.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1">lattice<span class="op">::</span><span class="kw">levelplot</span>(</a>
-<a class="sourceLine" id="cb2-2" title="2">  response <span class="op">~</span><span class="st"> </span>X_values <span class="op">*</span><span class="st"> </span>Y_values,</a>
-<a class="sourceLine" id="cb2-3" title="3">  <span class="dt">data =</span> samp_dat,</a>
-<a class="sourceLine" id="cb2-4" title="4">  <span class="dt">col.regions =</span> <span class="kw">colorRampPalette</span>(</a>
-<a class="sourceLine" id="cb2-5" title="5">    <span class="kw">c</span>(<span class="st">&quot;white&quot;</span>, <span class="st">&quot;blue&quot;</span>)</a>
-<a class="sourceLine" id="cb2-6" title="6">    )(<span class="dv">100</span>),</a>
-<a class="sourceLine" id="cb2-7" title="7">  <span class="dt">xlim =</span> <span class="kw">c</span>(<span class="op">-</span><span class="dv">5</span>, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb2-8" title="8">  <span class="dt">ylim =</span> <span class="kw">c</span>(<span class="op">-</span><span class="dv">1</span>, <span class="dv">4</span>), </a>
-<a class="sourceLine" id="cb2-9" title="9">  <span class="dt">asp =</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb2-10" title="10">)</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>lattice<span class="sc">::</span><span class="fu">levelplot</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  response <span class="sc">~</span> X_values <span class="sc">*</span> Y_values,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> samp_dat,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">col.regions =</span> <span class="fu">colorRampPalette</span>(</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(<span class="st">&quot;white&quot;</span>, <span class="st">&quot;blue&quot;</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    )(<span class="dv">100</span>),</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">5</span>, <span class="dv">0</span>),</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">4</span>), </span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">asp =</span> <span class="dv">1</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASAAAAEgCAMAAAAjXV6yAAAAn1BMVEUAAAAAADoAAGYAAP8AOjoAOpAAZrYSEv8hIf8zM/86AAA6ADo6AGY6OgA6OpA6ZmY6kNtCQv9UVP9mAABmADpmAGZmOpBmZmZmkJBmtrZmtv9nZ/92dv+IiP+QOgCQOjqQOmaQ2/+Xl/+qqv+2ZgC225C2/7a2//+8vP/Ly//bkDrbtrbb/7bb///d3f/s7P//tmb/25D//7b//9v////ySlQZAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAH/ElEQVR4nO2dDbvaNBiGe6YcFaeizKlMmWd2zlXZSuH//zaTtOU05U2eAG2B5LkvL/UA6aH3yVfz5iPbEy/Ztb/ArUNBAAoCUBCAggAUBKAgAAUBKAhAQQAKAlAQgIIAFASgIAAFASgIQEEACgJQEICCABQEoCAABQEoCEBBAAoCUBCAggAUBKAgAAUBKAhAQQAKAlAQgIIAFASgIAAFASgIQEEACgJQEICCABQEoCAABQEoCEBBAAoCUBCAggAUBLhQkC+5570zk517yUugIAAFASgIQEEACgJQEODc62Y3y2nfdzRBbfLPA/CXhzdu3lmAG8m+EKEgCqIgCqIgCqIgCopf0FciVqrtPMtW9X9mGwo6ElQtV/vy4WlfPloJKailVNlmt17t8wUFPQvqPZGpXLR7+0RBch2kKGab6tV32cOzo6kEeW70jdzA1HiSfbIYRFDx4sN+++3Tvvr5AwUJgoo251SvDlmIgjp+XrT5hoIkQbpsKUpdzL6fvB90dUFfi3RT5aZBW+2LLDtkJQrCd0hBFERBFERBMQgqs+4jCgX10d2ostM/uDdB34gMXMQ6PXAKkig6I5ENtyMIxOYnELSd33MdNEkOYh0EYB2UtqAm7LNbn/U03xsmiVBQG/bJH/U/JwvqDZNEKKgJ++hisn2Z3pj0jyJC2EfLSXHI1SGo9zHV0/MKqpYLXZRm/aomFUEm7OMTlCuBc6uOSkqQCfv4BJl6XLV0xx3CJATVYR9fJa0F5epTRZKCmrCPt5nPH6vlbFMtkyxibdinWro7iuq9h6fdOthPVIIcCYNdUFDcgn4SOVmQKmOzjT3FioI6qGc1PYVoGWwoMUG79cIMq8bYzA8iSPeDtKAYO4qD5qA8+GEsMUFNHVTocTUKkgTpVkwKoFJQAM2I7b0Kkq8xoKB2xDZpQaaAaYRWrJ2oH7UgM8yBF7M4W3mdi2IWVC31nQcsZnGNKAqx+Y9d5CkmkD88fHJj/wVQbD5AUJH9oHNQwGIWRxYSOtg3JEgWc4qgf82AfchiFvlRoxCa/7sXZOe6ejwaLmaRRxRFa3cvyP6UFuRbzNK2YtKTRjtiG70gI+KMwGE7Ynuvgn4XGVCQ4/fGJ2jgxSzxCXIuZjl0o+WedBKCpISBJiiIgkIEtcWMRcwhKJ9tikf1OBs+opiWIB3v0cMaRfiY9N0Iki9/RlTD9LZfxlfEBhGkoxq96TEUZP2kH0jzBYuYU5AeKrOnx1BQqAoKoiAs6IS5d2kKMoM+J8RVoxNkmm+wmKXUjxrhkzjvRtA7ESnsgxez7NYRPosFCKrDPmgxiycHCf3HqATVYR/fTHtV+jx1UJ0BIxN0HPbxL0XwVD5N3DEyQfankKAOvfjivs2Ah3T3FnoeX1D8ddDzSp+AFYfpCgpcs5qwIN9ilogFyRt9nv+wSkEUNLwgKTkFUdBFUBAFHf6veh28nUCigpbh42R3KOgfkdOKWCEsxqAg66f8hJBYkoLMOoU4p78MIsgez6egvqA88TrIXuZzJIitWCndfzL9oABB4oYKyfSkHYI649jy42cygj6KdFP1lvlQUF9Qb5kPBfUFaYS9RoNdiJ0kCnoml3bHi0mQYzPWUD/y7NeYBDk2Yw0V1IvIxihITnimoDYSbn1lua9hkMerauTvXvPZTe9GQGx+akFt8tsRBO6TgsB9ysV0QEGOSpqCDsjNPAUdEJcoUBBKTkGn/F4KAr+XgsDvpSDwe29ZkHwNCjq8TUHgiwYIkke8KOiA3BWmoBbHw1TigjpDJI7H8cQFdT5CQRREQRcIwi8nXkkHvJx2Mx/wsjzidZqQo+QxCTrzE/7kFASSUxBITkEgOQWB5BTkSneznPZ9RxMUkNzz3pnJzr3kJVAQgIIAFASgIAAFASgIMNZ1o4GCABQEoCAABQEoCEBBAAoCUBBgTEHOswNKz4ao4nGu+JKjMaag3LGNg14c6jqJUz7O9fndE3eGuJwRBZVfev7cx7MEmkTica4N4nayIzOeoN2f7z134zuZ4vg41wZ7O9lpGE9QsXDfzXbu2xjeIy8iQdVr75/beRqw6xDTmkgEFVn2mK/Euyma7c6lOqh+TzrO9ZAuEkH7w0llzgbbVUl7809MgjSuu5EXqDdpxONc4SXH4yodRXGBeo18nCu+5GjwUQNAQQAKAlAQgIIAFASgIAAFASgIQEEACgJQEICCABQEoCAABQGmELSd12GKwhMydYZ6rs0kOajM9FbW27m0oXVD2oJMEHq39u0In7ggfT6pFa7YzrUPHYTP6yFoJcg4Mv8q1Gt1nvONT0/DRJX0dv7rvHundXbKZ5u8iYR1BemfdXk0FssrG5qqFSsyuwLS+alaLkx4TIvoCFIv701syBN9nY6JBB3tXdSZ5lLqYtQRVL+srF1hsssxEwnKZ//1jknW2xyo1l+HyN7bOahsFgOu6rOnk6iDdEVS2oWsfPG3EmKqmV4Rs+dP5b55IBMwiaDt3FTJ1q1Wy19UATLVTNkWsUVTslbW5+KvpHdrU5dUS2veT66na9SZR+Ut5WG3nm1UoapbMa3TZCX3fLxpmECQuWlNaR0eVLffhZ7PqWTojKJnhPzW9oPqrOWZ7TkRfFgFUBBgWkHNAXjXLzjhMAcBKAhAQQAKAlAQgIIAFASgIAAFASgIQEEACgJQEICCABQEoCAABQEoCEBBAAoCUBCAggAUBKAgAAUBKAhAQQAKAlAQ4H86q4UMIUBQAgAAAABJRU5ErkJggg==" /><!-- --></p>
 </div>
 <div id="the-method-and-constrain_orientation-arguments" class="section level2">
@@ -338,274 +180,197 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <div id="method" class="section level3">
 <h3><code>method</code></h3>
 <p><code>gaussplotR::fit_gaussian_2D()</code> has three main options for its <code>method</code> argument: 1) <code>&quot;elliptical&quot;</code>, 2) <code>&quot;elliptical_log&quot;</code>, or 3) <code>&quot;circular&quot;</code>.</p>
-<p>The most generic method (and the default) is <code>method = &quot;elliptical&quot;</code>. This allows the fitted 2D Gaussian to take an ellipsoid shape. If you would like the best-fitting 2D Gaussian, this is most likely your best bet.</p>
+<p>The most generic method (and the default) is <code>method = &quot;elliptical&quot;</code>. This allows the fitted 2D-Gaussian to take an ellipsoid shape. If you would like the best-fitting 2D-Gaussian, this is most likely your best bet.</p>
 <p>A slightly-altered method to fit an ellipsoid Gaussian is available in <code>method = &quot;elliptical_log&quot;</code>. This method follows Priebe et al. 2003<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> and is geared towards use with log2-transformed data.</p>
-<p>A third option is <code>method = &quot;circular&quot;</code>. This produces a very simple 2D Gaussian that is constrained to have to have a roughly circular shape (i.e. spread in X- and Y- are roughly equal).</p>
+<p>A third option is <code>method = &quot;circular&quot;</code>. This produces a very simple 2D-Gaussian that is constrained to have to have a roughly circular shape (i.e. spread in X- and Y- are roughly equal).</p>
 <p>An additional argument, <code>constrain_orientation</code> gives additional control over the orientation of the fitted Gaussian. By default, the <code>constrain_orientation</code> is <code>&quot;unconstrained&quot;</code>, meaning that the best-fit orientation is returned.</p>
 </div>
 <div id="constrain_orientation" class="section level3">
 <h3><code>constrain_orientation</code></h3>
 <p>Setting constrain_orientation to a numeric (e.g. <code>constrain_orientation = pi/2</code>) will force the orientation of the Gaussian to the specified value, but this is only available when using <code>method = &quot;elliptical&quot;</code> or <code>method = &quot;elliptical_log&quot;</code></p>
-<p>Note that supplying a numeric to <code>constrain_orientation</code> is handled differently by <code>method = &quot;elliptical&quot;</code> vs <code>method = &quot;elliptical_log&quot;</code>. With <code>method = &quot;elliptical&quot;</code>, a <code>theta</code> parameter dictates the rotation, in radians, from the x-axis in the clockwise direction. Thus, using <code>method = &quot;elliptical&quot;, constrain_orientation = pi/2</code> will return parameters for an elliptical 2D Gaussian that is constrained to a 90-degree (pi/2) orientation. In contrast, the <code>method = &quot;elliptical_log&quot;</code> procedure uses a <code>Q</code> parameter to determine the orientation of the 2D Gaussian. Setting <code>method = &quot;elliptical_log&quot;, constrain_orientation = 0</code> will result in a diagonally-oriented Gaussian, whereas setting <code>constrain_orientation = -1</code> will result in horizontal orientation. Again, see Priebe et al. 2003 for more details.</p>
+<p>Note that supplying a numeric to <code>constrain_orientation</code> is handled differently by <code>method = &quot;elliptical&quot;</code> vs <code>method = &quot;elliptical_log&quot;</code>. With <code>method = &quot;elliptical&quot;</code>, a <code>theta</code> parameter dictates the rotation, in radians, from the x-axis in the clockwise direction. Thus, using <code>method = &quot;elliptical&quot;, constrain_orientation = pi/2</code> will return parameters for an elliptical 2D-Gaussian that is constrained to a 90-degree (pi/2) orientation. In contrast, the <code>method = &quot;elliptical_log&quot;</code> procedure uses a <code>Q</code> parameter to determine the orientation of the 2D-Gaussian. Setting <code>method = &quot;elliptical_log&quot;, constrain_orientation = 0</code> will result in a diagonally-oriented Gaussian, whereas setting <code>constrain_orientation = -1</code> will result in horizontal orientation. Again, see Priebe et al. 2003 for more details.</p>
 </div>
 </div>
 <div id="example-1-unconstrained-elliptical" class="section level2">
 <h2>Example 1: Unconstrained elliptical</h2>
 <p>Unconstrained ellipticals are the default option and are generally recommended for most purposes. Here’s an example:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1">gauss_fit_ue &lt;-</a>
-<a class="sourceLine" id="cb3-2" title="2"><span class="st">    </span><span class="kw">fit_gaussian_2D</span>(samp_dat)</a>
-<a class="sourceLine" id="cb3-3" title="3"></a>
-<a class="sourceLine" id="cb3-4" title="4">gauss_fit_ue</a>
-<a class="sourceLine" id="cb3-5" title="5"><span class="co">#&gt; $coefs</span></a>
-<a class="sourceLine" id="cb3-6" title="6"><span class="co">#&gt;         A_o      Amp    theta    X_peak   Y_peak         a         b</span></a>
-<a class="sourceLine" id="cb3-7" title="7"><span class="co">#&gt; 1 0.8272942 32.25132 3.581234 -2.638124 2.021262 0.9072492 0.9611345</span></a>
-<a class="sourceLine" id="cb3-8" title="8"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb3-9" title="9"><span class="co">#&gt; $model</span></a>
-<a class="sourceLine" id="cb3-10" title="10"><span class="co">#&gt; Nonlinear regression model</span></a>
-<a class="sourceLine" id="cb3-11" title="11"><span class="co">#&gt;   model: response ~ A_o + Amp * exp(-((((X_values - X_peak) * cos(theta) -     (Y_values - Y_peak) * sin(theta))/a)^2 + (((X_values - X_peak) *     sin(theta) - (Y_values - Y_peak) * cos(theta))/b)^2)/2)</span></a>
-<a class="sourceLine" id="cb3-12" title="12"><span class="co">#&gt;    data: data</span></a>
-<a class="sourceLine" id="cb3-13" title="13"><span class="co">#&gt;     A_o     Amp   theta  X_peak  Y_peak       a       b </span></a>
-<a class="sourceLine" id="cb3-14" title="14"><span class="co">#&gt;  0.8273 32.2513  3.5812 -2.6381  2.0213  0.9072  0.9611 </span></a>
-<a class="sourceLine" id="cb3-15" title="15"><span class="co">#&gt;  residual sum-of-squares: 156.2</span></a>
-<a class="sourceLine" id="cb3-16" title="16"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb3-17" title="17"><span class="co">#&gt; Number of iterations to convergence: 13 </span></a>
-<a class="sourceLine" id="cb3-18" title="18"><span class="co">#&gt; Achieved convergence tolerance: 3.935e-06</span></a>
-<a class="sourceLine" id="cb3-19" title="19"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb3-20" title="20"><span class="co">#&gt; $model_error_stats</span></a>
-<a class="sourceLine" id="cb3-21" title="21"><span class="co">#&gt;        rss     rmse deviance      AIC</span></a>
-<a class="sourceLine" id="cb3-22" title="22"><span class="co">#&gt; 1 156.2272 2.083181 156.2272 171.0041</span></a>
-<a class="sourceLine" id="cb3-23" title="23"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb3-24" title="24"><span class="co">#&gt; $fit_method</span></a>
-<a class="sourceLine" id="cb3-25" title="25"><span class="co">#&gt;          method       amplitude     orientation </span></a>
-<a class="sourceLine" id="cb3-26" title="26"><span class="co">#&gt;    &quot;elliptical&quot; &quot;unconstrained&quot; &quot;unconstrained&quot; </span></a>
-<a class="sourceLine" id="cb3-27" title="27"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb3-28" title="28"><span class="co">#&gt; attr(,&quot;gaussplotR&quot;)</span></a>
-<a class="sourceLine" id="cb3-29" title="29"><span class="co">#&gt; [1] &quot;gaussplotR_fit&quot;</span></a>
-<a class="sourceLine" id="cb3-30" title="30"><span class="kw">attributes</span>(gauss_fit_ue)</a>
-<a class="sourceLine" id="cb3-31" title="31"><span class="co">#&gt; $names</span></a>
-<a class="sourceLine" id="cb3-32" title="32"><span class="co">#&gt; [1] &quot;coefs&quot;             &quot;model&quot;             &quot;model_error_stats&quot;</span></a>
-<a class="sourceLine" id="cb3-33" title="33"><span class="co">#&gt; [4] &quot;fit_method&quot;       </span></a>
-<a class="sourceLine" id="cb3-34" title="34"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb3-35" title="35"><span class="co">#&gt; $gaussplotR</span></a>
-<a class="sourceLine" id="cb3-36" title="36"><span class="co">#&gt; [1] &quot;gaussplotR_fit&quot;</span></a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>gauss_fit_ue <span class="ot">&lt;-</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">fit_gaussian_2D</span>(samp_dat)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>gauss_fit_ue</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Model coefficients</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   A_o   Amp theta X_peak Y_peak    a    b</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  0.83 32.25  3.58  -2.64   2.02 0.91 0.96</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Model error stats</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     rss rmse deviance AIC</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  156.23 2.08   156.23 171</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Fitting methods</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          method       amplitude     orientation </span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    &quot;elliptical&quot; &quot;unconstrained&quot; &quot;unconstrained&quot;</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="fu">attributes</span>(gauss_fit_ue)</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $names</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;coefs&quot;             &quot;model&quot;             &quot;model_error_stats&quot;</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [4] &quot;fit_method&quot;       </span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $gaussplotR</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;gaussplotR_fit&quot;</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $class</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;list&quot;           &quot;gaussplotR_fit&quot;</span></span></code></pre></div>
 <p>Fitting an unconstrained ellipse returns an object (here: <code>gauss_fit_ue</code>) that is a <code>data.frame</code> with one column per fitted parameter. The fitted parameters are: <code>A_o</code> (a constant term), <code>Amp</code> (amplitude), <code>theta</code> (rotation, in radians, from the x-axis in the clockwise direction), <code>X_peak</code> (x-axis peak location), <code>Y_peak</code> (y-axis peak location), <code>a</code> (width of Gaussian along x-axis), and <code>b</code> (width of Gaussian along y-axis).</p>
-<p>Note that the attribute <code>fit_method</code> indicates that an <code>&quot;elliptical_unconstr&quot;</code> approach was used. This attribute is used by <code>predict_gaussian_2D()</code> to automatically determine what method (and therefore, identity of parameters) was used and then sample points from that fitted Gaussian.</p>
+<p>Note that the <code>data.frame</code> in <code>gauss_fit_ue$fit_method</code> indicates the fitting method and whether amplitude and/or orientation were constrained. This <code>data.frame</code> is used by <code>predict_gaussian_2D()</code> to automatically determine what method (and therefore, identity of parameters) was used and then sample points from that fitted Gaussian.</p>
 <p>We can elect to sample more points from the fitted Gaussian by feeding in a grid of x- and y- values on which to predict (via <code>expand.grid()</code>.</p>
 <p>Then, the fitted object <code>gauss_fit_ue</code> along with the grid of points can be supplied to <code>predict_gaussian_2D</code> to sample more points from the fit, which can be useful for plotting.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1"><span class="co">## Generate a grid of x- and y- values on which to predict</span></a>
-<a class="sourceLine" id="cb4-2" title="2">grid &lt;-</a>
-<a class="sourceLine" id="cb4-3" title="3"><span class="st">  </span><span class="kw">expand.grid</span>(<span class="dt">X_values =</span> <span class="kw">seq</span>(<span class="dt">from =</span> <span class="dv">-5</span>, <span class="dt">to =</span> <span class="dv">0</span>, <span class="dt">by =</span> <span class="fl">0.1</span>),</a>
-<a class="sourceLine" id="cb4-4" title="4">              <span class="dt">Y_values =</span> <span class="kw">seq</span>(<span class="dt">from =</span> <span class="dv">-1</span>, <span class="dt">to =</span> <span class="dv">4</span>, <span class="dt">by =</span> <span class="fl">0.1</span>))</a>
-<a class="sourceLine" id="cb4-5" title="5"></a>
-<a class="sourceLine" id="cb4-6" title="6"><span class="co">## Predict the values using predict_gaussian_2D</span></a>
-<a class="sourceLine" id="cb4-7" title="7">gauss_data_ue &lt;-</a>
-<a class="sourceLine" id="cb4-8" title="8"><span class="st">  </span><span class="kw">predict_gaussian_2D</span>(</a>
-<a class="sourceLine" id="cb4-9" title="9">    <span class="dt">fit_object =</span> gauss_fit_ue,</a>
-<a class="sourceLine" id="cb4-10" title="10">    <span class="dt">X_values =</span> grid<span class="op">$</span>X_values,</a>
-<a class="sourceLine" id="cb4-11" title="11">    <span class="dt">Y_values =</span> grid<span class="op">$</span>Y_values,</a>
-<a class="sourceLine" id="cb4-12" title="12">  )</a>
-<a class="sourceLine" id="cb4-13" title="13"></a>
-<a class="sourceLine" id="cb4-14" title="14"><span class="co">## Plot via ggplot2 and metR</span></a>
-<a class="sourceLine" id="cb4-15" title="15"><span class="kw">ggplot_gaussian_2D</span>(gauss_data_ue)</a></code></pre></div>
-<p><img src="data:image/png;base64,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" /><!-- --></p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Generate a grid of x- and y- values on which to predict</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>grid <span class="ot">&lt;-</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expand.grid</span>(<span class="at">X_values =</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="sc">-</span><span class="dv">5</span>, <span class="at">to =</span> <span class="dv">0</span>, <span class="at">by =</span> <span class="fl">0.1</span>),</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">Y_values =</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="sc">-</span><span class="dv">1</span>, <span class="at">to =</span> <span class="dv">4</span>, <span class="at">by =</span> <span class="fl">0.1</span>))</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="do">## Predict the values using predict_gaussian_2D</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>gauss_data_ue <span class="ot">&lt;-</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">predict_gaussian_2D</span>(</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">fit_object =</span> gauss_fit_ue,</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">X_values =</span> grid<span class="sc">$</span>X_values,</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">Y_values =</span> grid<span class="sc">$</span>Y_values,</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="do">## Plot via ggplot2 and metR</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot_gaussian_2D</span>(gauss_data_ue)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
 </div>
 <div id="example-2-constrained-elliptical" class="section level2">
 <h2>Example 2: Constrained elliptical</h2>
 <p>As noted above, the <code>constrain_orientation</code> can be used to dictate the orientation. Please note that this will very likely result in a poorer fit, but may be useful for certain types of analyses.</p>
 <p>Here we’ll force the Gaussian to be horizontally-oriented.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1">gauss_fit_ce &lt;-</a>
-<a class="sourceLine" id="cb5-2" title="2"><span class="st">    </span><span class="kw">fit_gaussian_2D</span>(samp_dat, </a>
-<a class="sourceLine" id="cb5-3" title="3">                    <span class="dt">constrain_orientation =</span> <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb5-4" title="4"></a>
-<a class="sourceLine" id="cb5-5" title="5">gauss_fit_ce</a>
-<a class="sourceLine" id="cb5-6" title="6"><span class="co">#&gt; $coefs</span></a>
-<a class="sourceLine" id="cb5-7" title="7"><span class="co">#&gt;        A_o      Amp theta    X_peak   Y_peak        a        b</span></a>
-<a class="sourceLine" id="cb5-8" title="8"><span class="co">#&gt; 1 1.259775 24.76887     0 -2.526168 1.949814 1.199245 1.327056</span></a>
-<a class="sourceLine" id="cb5-9" title="9"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb5-10" title="10"><span class="co">#&gt; $model</span></a>
-<a class="sourceLine" id="cb5-11" title="11"><span class="co">#&gt; Nonlinear regression model</span></a>
-<a class="sourceLine" id="cb5-12" title="12"><span class="co">#&gt;   model: response ~ A_o + Amp * exp(-((((X_values - X_peak) * cos(constrain_orientation) -     (Y_values - Y_peak) * sin(constrain_orientation))/a)^2 +     (((X_values - X_peak) * sin(constrain_orientation) - (Y_values -         Y_peak) * cos(constrain_orientation))/b)^2)/2)</span></a>
-<a class="sourceLine" id="cb5-13" title="13"><span class="co">#&gt;    data: data</span></a>
-<a class="sourceLine" id="cb5-14" title="14"><span class="co">#&gt;    A_o    Amp X_peak Y_peak      a      b </span></a>
-<a class="sourceLine" id="cb5-15" title="15"><span class="co">#&gt;  1.260 24.769 -2.526  1.950  1.199  1.327 </span></a>
-<a class="sourceLine" id="cb5-16" title="16"><span class="co">#&gt;  residual sum-of-squares: 885.8</span></a>
-<a class="sourceLine" id="cb5-17" title="17"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb5-18" title="18"><span class="co">#&gt; Number of iterations to convergence: 157 </span></a>
-<a class="sourceLine" id="cb5-19" title="19"><span class="co">#&gt; Achieved convergence tolerance: 9.813e-06</span></a>
-<a class="sourceLine" id="cb5-20" title="20"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb5-21" title="21"><span class="co">#&gt; $model_error_stats</span></a>
-<a class="sourceLine" id="cb5-22" title="22"><span class="co">#&gt;       rss     rmse deviance      AIC</span></a>
-<a class="sourceLine" id="cb5-23" title="23"><span class="co">#&gt; 1 885.831 4.960486  885.831 231.4718</span></a>
-<a class="sourceLine" id="cb5-24" title="24"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb5-25" title="25"><span class="co">#&gt; $fit_method</span></a>
-<a class="sourceLine" id="cb5-26" title="26"><span class="co">#&gt;          method       amplitude     orientation </span></a>
-<a class="sourceLine" id="cb5-27" title="27"><span class="co">#&gt;    &quot;elliptical&quot; &quot;unconstrained&quot;   &quot;constrained&quot; </span></a>
-<a class="sourceLine" id="cb5-28" title="28"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb5-29" title="29"><span class="co">#&gt; attr(,&quot;gaussplotR&quot;)</span></a>
-<a class="sourceLine" id="cb5-30" title="30"><span class="co">#&gt; [1] &quot;gaussplotR_fit&quot;</span></a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>gauss_fit_ce <span class="ot">&lt;-</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">fit_gaussian_2D</span>(samp_dat, </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">constrain_orientation =</span> <span class="dv">0</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>gauss_fit_ce</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Model coefficients</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   A_o   Amp theta X_peak Y_peak   a    b</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  1.26 24.77     0  -2.53   1.95 1.2 1.33</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Model error stats</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     rss rmse deviance    AIC</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  885.83 4.96   885.83 231.47</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Fitting methods</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          method       amplitude     orientation </span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    &quot;elliptical&quot; &quot;unconstrained&quot;   &quot;constrained&quot;</span></span></code></pre></div>
 <p>We’ll use the same grid of x- and y- points as above</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1"><span class="co">## Predict the values using predict_gaussian_2D</span></a>
-<a class="sourceLine" id="cb6-2" title="2">gauss_data_ce &lt;-</a>
-<a class="sourceLine" id="cb6-3" title="3"><span class="st">  </span><span class="kw">predict_gaussian_2D</span>(</a>
-<a class="sourceLine" id="cb6-4" title="4">    <span class="dt">fit_object =</span> gauss_fit_ce,</a>
-<a class="sourceLine" id="cb6-5" title="5">    <span class="dt">X_values =</span> grid<span class="op">$</span>X_values,</a>
-<a class="sourceLine" id="cb6-6" title="6">    <span class="dt">Y_values =</span> grid<span class="op">$</span>Y_values,</a>
-<a class="sourceLine" id="cb6-7" title="7">  )</a>
-<a class="sourceLine" id="cb6-8" title="8"></a>
-<a class="sourceLine" id="cb6-9" title="9"><span class="co">## Plot via ggplot2 and metR</span></a>
-<a class="sourceLine" id="cb6-10" title="10"><span class="kw">ggplot_gaussian_2D</span>(gauss_data_ce)</a></code></pre></div>
-<p><img src="data:image/png;base64,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" /><!-- --></p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Predict the values using predict_gaussian_2D</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>gauss_data_ce <span class="ot">&lt;-</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">predict_gaussian_2D</span>(</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">fit_object =</span> gauss_fit_ce,</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">X_values =</span> grid<span class="sc">$</span>X_values,</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">Y_values =</span> grid<span class="sc">$</span>Y_values,</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="do">## Plot via ggplot2 and metR</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot_gaussian_2D</span>(gauss_data_ce)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
 </div>
 <div id="example-3-unconstrained-elliptical_log" class="section level2">
 <h2>Example 3: Unconstrained elliptical_log</h2>
 <p>This procedure follows the formula used in Priebe et al. 2003 and is geared towards log2-transformed data (which the example data are).</p>
 <p>Parameters from this model include: <code>Amp</code> (amplitude), <code>Q</code> (orientation parameter), <code>X_peak</code> (x-axis peak location), <code>Y_peak</code> (y-axis peak location), <code>X_sig</code> (spread along x-axis), and <code>Y_sig</code> (spread along y-axis).</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1">gauss_fit_uel &lt;-</a>
-<a class="sourceLine" id="cb7-2" title="2"><span class="st">    </span><span class="kw">fit_gaussian_2D</span>(samp_dat, </a>
-<a class="sourceLine" id="cb7-3" title="3">                    <span class="dt">method =</span> <span class="st">&quot;elliptical_log&quot;</span>)</a>
-<a class="sourceLine" id="cb7-4" title="4"></a>
-<a class="sourceLine" id="cb7-5" title="5">gauss_fit_uel</a>
-<a class="sourceLine" id="cb7-6" title="6"><span class="co">#&gt; $coefs</span></a>
-<a class="sourceLine" id="cb7-7" title="7"><span class="co">#&gt;        Amp          Q    X_peak   Y_peak    X_sig    Y_sig</span></a>
-<a class="sourceLine" id="cb7-8" title="8"><span class="co">#&gt; 1 32.23457 -0.1942029 -2.634429 2.007712 2.108038 1.424922</span></a>
-<a class="sourceLine" id="cb7-9" title="9"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb7-10" title="10"><span class="co">#&gt; $model</span></a>
-<a class="sourceLine" id="cb7-11" title="11"><span class="co">#&gt; Nonlinear regression model</span></a>
-<a class="sourceLine" id="cb7-12" title="12"><span class="co">#&gt;   model: response ~ Amp * exp(-((X_values - X_peak)^2)/(X_sig^2)) * exp(-(Y_values -     ((Q + 1) * (X_values - X_peak) + Y_peak))^2/(Y_sig^2))</span></a>
-<a class="sourceLine" id="cb7-13" title="13"><span class="co">#&gt;    data: data</span></a>
-<a class="sourceLine" id="cb7-14" title="14"><span class="co">#&gt;     Amp       Q  X_peak  Y_peak   X_sig   Y_sig </span></a>
-<a class="sourceLine" id="cb7-15" title="15"><span class="co">#&gt; 32.2346 -0.1942 -2.6344  2.0077  2.1080  1.4249 </span></a>
-<a class="sourceLine" id="cb7-16" title="16"><span class="co">#&gt;  residual sum-of-squares: 169.9</span></a>
-<a class="sourceLine" id="cb7-17" title="17"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb7-18" title="18"><span class="co">#&gt; Number of iterations to convergence: 13 </span></a>
-<a class="sourceLine" id="cb7-19" title="19"><span class="co">#&gt; Achieved convergence tolerance: 5.196e-06</span></a>
-<a class="sourceLine" id="cb7-20" title="20"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb7-21" title="21"><span class="co">#&gt; $model_error_stats</span></a>
-<a class="sourceLine" id="cb7-22" title="22"><span class="co">#&gt;        rss     rmse deviance      AIC</span></a>
-<a class="sourceLine" id="cb7-23" title="23"><span class="co">#&gt; 1 169.8812 2.172308 169.8812 172.0205</span></a>
-<a class="sourceLine" id="cb7-24" title="24"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb7-25" title="25"><span class="co">#&gt; $fit_method</span></a>
-<a class="sourceLine" id="cb7-26" title="26"><span class="co">#&gt;           method        amplitude      orientation </span></a>
-<a class="sourceLine" id="cb7-27" title="27"><span class="co">#&gt; &quot;elliptical_log&quot;  &quot;unconstrained&quot;  &quot;unconstrained&quot; </span></a>
-<a class="sourceLine" id="cb7-28" title="28"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb7-29" title="29"><span class="co">#&gt; attr(,&quot;gaussplotR&quot;)</span></a>
-<a class="sourceLine" id="cb7-30" title="30"><span class="co">#&gt; [1] &quot;gaussplotR_fit&quot;</span></a>
-<a class="sourceLine" id="cb7-31" title="31"></a>
-<a class="sourceLine" id="cb7-32" title="32"><span class="co">## Predict the values using predict_gaussian_2D</span></a>
-<a class="sourceLine" id="cb7-33" title="33">gauss_data_uel &lt;-</a>
-<a class="sourceLine" id="cb7-34" title="34"><span class="st">  </span><span class="kw">predict_gaussian_2D</span>(</a>
-<a class="sourceLine" id="cb7-35" title="35">    <span class="dt">fit_object =</span> gauss_fit_uel,</a>
-<a class="sourceLine" id="cb7-36" title="36">    <span class="dt">X_values =</span> grid<span class="op">$</span>X_values,</a>
-<a class="sourceLine" id="cb7-37" title="37">    <span class="dt">Y_values =</span> grid<span class="op">$</span>Y_values,</a>
-<a class="sourceLine" id="cb7-38" title="38">  )</a>
-<a class="sourceLine" id="cb7-39" title="39"></a>
-<a class="sourceLine" id="cb7-40" title="40"><span class="co">## Plot via ggplot2 and metR</span></a>
-<a class="sourceLine" id="cb7-41" title="41"><span class="kw">ggplot_gaussian_2D</span>(gauss_data_uel)</a></code></pre></div>
-<p><img src="data:image/png;base64,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" /><!-- --></p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>gauss_fit_uel <span class="ot">&lt;-</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">fit_gaussian_2D</span>(samp_dat, </span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">method =</span> <span class="st">&quot;elliptical_log&quot;</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>gauss_fit_uel</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Model coefficients</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    Amp     Q X_peak Y_peak X_sig Y_sig</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  32.23 -0.19  -2.63   2.01  2.11  1.42</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Model error stats</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     rss rmse deviance    AIC</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  169.88 2.17   169.88 172.02</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Fitting methods</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;           method        amplitude      orientation </span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &quot;elliptical_log&quot;  &quot;unconstrained&quot;  &quot;unconstrained&quot;</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="do">## Predict the values using predict_gaussian_2D</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>gauss_data_uel <span class="ot">&lt;-</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">predict_gaussian_2D</span>(</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">fit_object =</span> gauss_fit_uel,</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">X_values =</span> grid<span class="sc">$</span>X_values,</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">Y_values =</span> grid<span class="sc">$</span>Y_values,</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a><span class="do">## Plot via ggplot2 and metR</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot_gaussian_2D</span>(gauss_data_uel)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
 </div>
 <div id="example-4-constrained-elliptical_log" class="section level2">
 <h2>Example 4: Constrained elliptical_log</h2>
 <p>Similar to the above, but here the <code>constrain_orientation</code> can be used to dictate the value of the <code>Q</code> parameter used in Priebe et al. 2003. Setting <code>Q</code> to 0 will result in a diagonally-oriented Gaussian, whereas setting <code>Q</code> to -1 will result in horizontal orientation. <code>Q</code> is a continuous parameter, so values in between may be used as well, such as in this example:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1">gauss_fit_cel &lt;-</a>
-<a class="sourceLine" id="cb8-2" title="2"><span class="st">    </span><span class="kw">fit_gaussian_2D</span>(</a>
-<a class="sourceLine" id="cb8-3" title="3">      samp_dat,</a>
-<a class="sourceLine" id="cb8-4" title="4">      <span class="dt">method =</span> <span class="st">&quot;elliptical_log&quot;</span>,</a>
-<a class="sourceLine" id="cb8-5" title="5">      <span class="dt">constrain_orientation =</span> <span class="fl">-0.66</span></a>
-<a class="sourceLine" id="cb8-6" title="6">    )</a>
-<a class="sourceLine" id="cb8-7" title="7"></a>
-<a class="sourceLine" id="cb8-8" title="8">gauss_fit_cel</a>
-<a class="sourceLine" id="cb8-9" title="9"><span class="co">#&gt; $coefs</span></a>
-<a class="sourceLine" id="cb8-10" title="10"><span class="co">#&gt;        Amp     Q    X_peak   Y_peak    X_sig    Y_sig</span></a>
-<a class="sourceLine" id="cb8-11" title="11"><span class="co">#&gt; 1 40.37259 -0.66 -2.603592 2.055755 1.853229 1.245801</span></a>
-<a class="sourceLine" id="cb8-12" title="12"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb8-13" title="13"><span class="co">#&gt; $model</span></a>
-<a class="sourceLine" id="cb8-14" title="14"><span class="co">#&gt; Nonlinear regression model</span></a>
-<a class="sourceLine" id="cb8-15" title="15"><span class="co">#&gt;   model: response ~ Amp * exp(-((X_values - X_peak)^2)/(X_sig^2)) * exp(-(Y_values -     ((constrain_orientation + 1) * (X_values - X_peak) + Y_peak))^2/(Y_sig^2))</span></a>
-<a class="sourceLine" id="cb8-16" title="16"><span class="co">#&gt;    data: data</span></a>
-<a class="sourceLine" id="cb8-17" title="17"><span class="co">#&gt;    Amp X_peak Y_peak  X_sig  Y_sig </span></a>
-<a class="sourceLine" id="cb8-18" title="18"><span class="co">#&gt; 40.373 -2.604  2.056  1.853  1.246 </span></a>
-<a class="sourceLine" id="cb8-19" title="19"><span class="co">#&gt;  residual sum-of-squares: 406.1</span></a>
-<a class="sourceLine" id="cb8-20" title="20"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb8-21" title="21"><span class="co">#&gt; Number of iterations to convergence: 14 </span></a>
-<a class="sourceLine" id="cb8-22" title="22"><span class="co">#&gt; Achieved convergence tolerance: 4.714e-06</span></a>
-<a class="sourceLine" id="cb8-23" title="23"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb8-24" title="24"><span class="co">#&gt; $model_error_stats</span></a>
-<a class="sourceLine" id="cb8-25" title="25"><span class="co">#&gt;        rss     rmse deviance      AIC</span></a>
-<a class="sourceLine" id="cb8-26" title="26"><span class="co">#&gt; 1 406.1011 3.358658 406.1011 201.3946</span></a>
-<a class="sourceLine" id="cb8-27" title="27"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb8-28" title="28"><span class="co">#&gt; $fit_method</span></a>
-<a class="sourceLine" id="cb8-29" title="29"><span class="co">#&gt;           method        amplitude      orientation </span></a>
-<a class="sourceLine" id="cb8-30" title="30"><span class="co">#&gt; &quot;elliptical_log&quot;  &quot;unconstrained&quot;    &quot;constrained&quot; </span></a>
-<a class="sourceLine" id="cb8-31" title="31"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb8-32" title="32"><span class="co">#&gt; attr(,&quot;gaussplotR&quot;)</span></a>
-<a class="sourceLine" id="cb8-33" title="33"><span class="co">#&gt; [1] &quot;gaussplotR_fit&quot;</span></a>
-<a class="sourceLine" id="cb8-34" title="34"></a>
-<a class="sourceLine" id="cb8-35" title="35"><span class="co">## Predict the values using predict_gaussian_2D</span></a>
-<a class="sourceLine" id="cb8-36" title="36">gauss_data_cel &lt;-</a>
-<a class="sourceLine" id="cb8-37" title="37"><span class="st">  </span><span class="kw">predict_gaussian_2D</span>(</a>
-<a class="sourceLine" id="cb8-38" title="38">    <span class="dt">fit_object =</span> gauss_fit_cel,</a>
-<a class="sourceLine" id="cb8-39" title="39">    <span class="dt">X_values =</span> grid<span class="op">$</span>X_values,</a>
-<a class="sourceLine" id="cb8-40" title="40">    <span class="dt">Y_values =</span> grid<span class="op">$</span>Y_values,</a>
-<a class="sourceLine" id="cb8-41" title="41">  )</a>
-<a class="sourceLine" id="cb8-42" title="42"></a>
-<a class="sourceLine" id="cb8-43" title="43"><span class="co">## Plot via ggplot2 and metR</span></a>
-<a class="sourceLine" id="cb8-44" title="44"><span class="kw">ggplot_gaussian_2D</span>(gauss_data_cel)</a></code></pre></div>
-<p><img src="data:image/png;base64,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" /><!-- --></p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>gauss_fit_cel <span class="ot">&lt;-</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">fit_gaussian_2D</span>(</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>      samp_dat,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">method =</span> <span class="st">&quot;elliptical_log&quot;</span>,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">constrain_orientation =</span> <span class="sc">-</span><span class="fl">0.66</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>gauss_fit_cel</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Model coefficients</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    Amp     Q X_peak Y_peak X_sig Y_sig</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  40.37 -0.66   -2.6   2.06  1.85  1.25</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Model error stats</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    rss rmse deviance    AIC</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  406.1 3.36    406.1 201.39</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Fitting methods</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;           method        amplitude      orientation </span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &quot;elliptical_log&quot;  &quot;unconstrained&quot;    &quot;constrained&quot;</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="do">## Predict the values using predict_gaussian_2D</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>gauss_data_cel <span class="ot">&lt;-</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">predict_gaussian_2D</span>(</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">fit_object =</span> gauss_fit_cel,</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">X_values =</span> grid<span class="sc">$</span>X_values,</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">Y_values =</span> grid<span class="sc">$</span>Y_values,</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a><span class="do">## Plot via ggplot2 and metR</span></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot_gaussian_2D</span>(gauss_data_cel)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
 <p>Again, setting the value of <code>Q</code> via <code>constrain_orientation</code> will very likely result in poorer-fitting Gaussians. See the analyses in Priebe et al. 2003 to get a sense of useful applications of this approach. Forcing Q = -0.66 in the above example isn’t all that useful, but goes to show that it can be done.</p>
 </div>
 <div id="example-5-circular" class="section level2">
 <h2>Example 5: Circular</h2>
 <p>Using <code>method = &quot;circular&quot;</code> constrains the Gaussian to have a roughly circular shape (i.e. spread in X- and Y- are roughly equal).</p>
 <p>If this method is used, the fitted parameters are: <code>Amp</code> (amplitude), <code>X_peak</code> (x-axis peak location), <code>Y_peak</code> (y-axis peak location), <code>X_sig</code> (spread along x-axis), and <code>Y_sig</code>(spread along y-axis).</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1">gauss_fit_cir &lt;-</a>
-<a class="sourceLine" id="cb9-2" title="2"><span class="st">    </span><span class="kw">fit_gaussian_2D</span>(samp_dat, </a>
-<a class="sourceLine" id="cb9-3" title="3">                    <span class="dt">method =</span> <span class="st">&quot;circular&quot;</span>)</a>
-<a class="sourceLine" id="cb9-4" title="4"></a>
-<a class="sourceLine" id="cb9-5" title="5">gauss_fit_cir</a>
-<a class="sourceLine" id="cb9-6" title="6"><span class="co">#&gt; $coefs</span></a>
-<a class="sourceLine" id="cb9-7" title="7"><span class="co">#&gt;        Amp    X_peak   Y_peak    X_sig    Y_sig</span></a>
-<a class="sourceLine" id="cb9-8" title="8"><span class="co">#&gt; 1 23.18005 -2.546643 1.811152 1.316288 1.642641</span></a>
-<a class="sourceLine" id="cb9-9" title="9"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb9-10" title="10"><span class="co">#&gt; $model</span></a>
-<a class="sourceLine" id="cb9-11" title="11"><span class="co">#&gt; Nonlinear regression model</span></a>
-<a class="sourceLine" id="cb9-12" title="12"><span class="co">#&gt;   model: response ~ Amp * exp(-((((X_values - X_peak)^2)/(2 * X_sig^2) +     ((Y_values - Y_peak)^2)/(2 * Y_sig^2))))</span></a>
-<a class="sourceLine" id="cb9-13" title="13"><span class="co">#&gt;    data: data</span></a>
-<a class="sourceLine" id="cb9-14" title="14"><span class="co">#&gt;    Amp X_peak Y_peak  X_sig  Y_sig </span></a>
-<a class="sourceLine" id="cb9-15" title="15"><span class="co">#&gt; 23.180 -2.547  1.811  1.316  1.643 </span></a>
-<a class="sourceLine" id="cb9-16" title="16"><span class="co">#&gt;  residual sum-of-squares: 899.6</span></a>
-<a class="sourceLine" id="cb9-17" title="17"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb9-18" title="18"><span class="co">#&gt; Number of iterations to convergence: 22 </span></a>
-<a class="sourceLine" id="cb9-19" title="19"><span class="co">#&gt; Achieved convergence tolerance: 9.057e-06</span></a>
-<a class="sourceLine" id="cb9-20" title="20"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb9-21" title="21"><span class="co">#&gt; $model_error_stats</span></a>
-<a class="sourceLine" id="cb9-22" title="22"><span class="co">#&gt;       rss     rmse deviance      AIC</span></a>
-<a class="sourceLine" id="cb9-23" title="23"><span class="co">#&gt; 1 899.613 4.998925  899.613 230.0276</span></a>
-<a class="sourceLine" id="cb9-24" title="24"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb9-25" title="25"><span class="co">#&gt; $fit_method</span></a>
-<a class="sourceLine" id="cb9-26" title="26"><span class="co">#&gt;          method       amplitude     orientation </span></a>
-<a class="sourceLine" id="cb9-27" title="27"><span class="co">#&gt;      &quot;circular&quot; &quot;unconstrained&quot;              NA </span></a>
-<a class="sourceLine" id="cb9-28" title="28"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb9-29" title="29"><span class="co">#&gt; attr(,&quot;gaussplotR&quot;)</span></a>
-<a class="sourceLine" id="cb9-30" title="30"><span class="co">#&gt; [1] &quot;gaussplotR_fit&quot;</span></a>
-<a class="sourceLine" id="cb9-31" title="31"></a>
-<a class="sourceLine" id="cb9-32" title="32"><span class="co">## Predict the values using predict_gaussian_2D</span></a>
-<a class="sourceLine" id="cb9-33" title="33">gauss_data_cir &lt;-</a>
-<a class="sourceLine" id="cb9-34" title="34"><span class="st">  </span><span class="kw">predict_gaussian_2D</span>(</a>
-<a class="sourceLine" id="cb9-35" title="35">    <span class="dt">fit_object =</span> gauss_fit_cir,</a>
-<a class="sourceLine" id="cb9-36" title="36">    <span class="dt">X_values =</span> grid<span class="op">$</span>X_values,</a>
-<a class="sourceLine" id="cb9-37" title="37">    <span class="dt">Y_values =</span> grid<span class="op">$</span>Y_values,</a>
-<a class="sourceLine" id="cb9-38" title="38">  )</a>
-<a class="sourceLine" id="cb9-39" title="39"></a>
-<a class="sourceLine" id="cb9-40" title="40"><span class="co">## Plot via ggplot2 and metR</span></a>
-<a class="sourceLine" id="cb9-41" title="41"><span class="kw">ggplot_gaussian_2D</span>(gauss_data_cir)</a></code></pre></div>
-<p><img src="data:image/png;base64,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" /><!-- --></p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>gauss_fit_cir <span class="ot">&lt;-</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">fit_gaussian_2D</span>(samp_dat, </span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">method =</span> <span class="st">&quot;circular&quot;</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>gauss_fit_cir</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Model coefficients</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    Amp X_peak Y_peak X_sig Y_sig</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  23.18  -2.55   1.81  1.32  1.64</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Model error stats</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     rss rmse deviance    AIC</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  899.61    5   899.61 230.03</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Fitting methods</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          method       amplitude     orientation </span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      &quot;circular&quot; &quot;unconstrained&quot;              NA</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="do">## Predict the values using predict_gaussian_2D</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>gauss_data_cir <span class="ot">&lt;-</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">predict_gaussian_2D</span>(</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">fit_object =</span> gauss_fit_cir,</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">X_values =</span> grid<span class="sc">$</span>X_values,</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">Y_values =</span> grid<span class="sc">$</span>Y_values,</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="do">## Plot via ggplot2 and metR</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot_gaussian_2D</span>(gauss_data_cir)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
 <p>That’s all!</p>
 <p>🐢</p>
 </div>
 <div class="footnotes">
 <hr />
 <ol>
-<li id="fn1"><p>Priebe NJ, Cassanello CR, Lisberger SG. The neural representation of speed in macaque area MT/V5. J Neurosci. 2003 Jul 2;23(13):5650-61. doi: 10.1523/JNEUROSCI.23-13-05650.2003.<a href="#fnref1" class="footnote-back">↩</a></p></li>
+<li id="fn1"><p>Priebe NJ, Cassanello CR, Lisberger SG. The neural representation of speed in macaque area MT/V5. J Neurosci. 2003 Jul 2;23(13):5650-61. doi: 10.1523/JNEUROSCI.23-13-05650.2003.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
 

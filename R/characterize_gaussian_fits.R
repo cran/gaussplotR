@@ -3,7 +3,7 @@
 
 ########################### characterize_gaussian_fits #########################
 
-#' Characterize the orientation of fitted 2D Gaussians
+#' Characterize the orientation of fitted 2D-Gaussians
 #'
 #' The orientation and partial correlations of Gaussian data are analyzed
 #' according to Levitt et al. 1994 and Priebe et al. 2003. Features include
@@ -349,8 +349,8 @@ Please revise 'fit_objects_list'."
 
   ## Zdiff
   Z_diff <-
-    ((R_ind - R_spd) / ((1 / (length(original) - 3)) +
-                          (1 / (length(original) - 3)))) * 1 / 2
+    (ZF_ind - ZF_spd) / ((1 / (length(original) - 3)) +
+                           (1 / (length(original) - 3))) ^ 0.5
 
 
   #### Put it all together and return ####

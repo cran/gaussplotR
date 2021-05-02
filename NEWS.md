@@ -1,3 +1,14 @@
+# gaussplotR 0.2.5
+* Citation information updated  
+* Ready for updating CRAN
+
+# gaussplotR 0.2.4
+* Post-peer review at the Journal of Open Source Software.
+* `print()` and `summary()` on objects that are output from `fit_gaussian_2D()`
+now round parameter estimates to two decimal places.
+* R version requirement downgraded to R >= 3.3.0 
+
+
 # gaussplotR 0.2.2
 * Newest functions enhance the automation of comparing among various Gaussian 
 fit models.  
@@ -13,14 +24,14 @@ predictions, along with Z-difference scoring.
 # gaussplotR 0.2.0
 
 * Added a `fit_gaussian_2D()` function to apply any of several available methods
-to fit a 2D Gaussian to supplied data
+to fit a 2D-Gaussian to supplied data
 * `predict_gaussian_2D()` has been enhanced to allow any method to be used in
 `fit_gaussian_2D()` and then fed into the predict function
 
 # gaussplotR 0.1.6
 
 * Added a `compute_gaussian_volume()` function to compute the volume under a 
-given 2D Gaussian
+given 2D-Gaussian
 
 # gaussplotR 0.1.4
 
